@@ -2,7 +2,7 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <title>Tidevann – Holmesund</title>
+  <title>Vannstand – Holmesund</title>
   <style>
     body { font-family: sans-serif; padding: 1rem; background: #eef; }
     h1 { color: #003366; }
@@ -12,22 +12,41 @@
   </style>
 </head>
 <body>
-  <h1>Tidevann for Holmesund</h1>
+  <h1>Vannstand for Holmesund</h1>
   <table id="tideTable">
     <thead>
-      <tr><th>Dato og tid</th><th>Type</th><th>Vannstand (cm)</th></tr>
+      <tr><th>Dato og tid</th><th>Vannstand (cm)</th><th>Type</th></tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
-    const url = "https://api.sehavniva.no/tideapi.php?" +
-      "lat=61.616&lon=5.296&place=Holmesund&datatype=forecast&refcode=CD" +
-      "&fromtime=2025-11-03T00:00:00Z&totime=2025-11-04T00:00:00Z&file=xml";
+    const url = "https://vannstand.kartverket.no/tideapi.php?" +
+      "lat=61.616&lon=5.296&fromtime=2025-11-02T00%3A00&totime=2025-11-03T00%3A00" +
+      "&datatype=all&refcode=cd&place=&file=&lang=nn&interval=60&dst=0&tzone=&tide_request=locationdata";
 
     fetch(url)
       .then(response => response.text())
       .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
       .then(data => {
         const tableBody = document.querySelector("#tideTable tbody");
-        const entries = data.querySelectorAll("location > time
+        const levels = data.querySelectorAll("waterlevel");
+
+        levels.forEach(entry => {
+          const time = entry.getAttribute("time");
+          const value = entry.getAttribute("value");
+          const type = entry.getAttribute("flag");
+
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${time}</td><td>${value}</td><td>${type}</td>`;
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        document.querySelector("#tideTable").outerHTML =
+          "<p>Kunne ikke hente vannstandsdata. Prøv igjen senere.</p>";
+        console.error("Feil ved henting:", err);
+      });
+  </script>
+</body>
+</html>
