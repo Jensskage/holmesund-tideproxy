@@ -4,12 +4,30 @@
   <meta charset="UTF-8">
   <title>Tidevann – Holmesund</title>
   <style>
-    body { font-family: sans-serif; padding: 1rem; }
-    iframe { border: none; width: 100%; height: 300px; }
+    body { font-family: sans-serif; padding: 1rem; background: #eef; }
+    h1 { color: #003366; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background-color: #dde; }
   </style>
 </head>
 <body>
   <h1>Tidevann for Holmesund</h1>
-  <iframe src="https://api.sehavniva.no/tideapi_embed.html?lat=61.616&lon=5.296&place=Holmesund&lang=no"></iframe>
-</body>
-</html>
+  <table id="tideTable">
+    <thead>
+      <tr><th>Dato og tid</th><th>Type</th><th>Vannstand (cm)</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const url = "https://api.sehavniva.no/tideapi.php?" +
+      "lat=61.616&lon=5.296&place=Holmesund&datatype=forecast&refcode=CD" +
+      "&fromtime=2025-11-03T00:00:00Z&totime=2025-11-04T00:00:00Z&file=xml";
+
+    fetch(url)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+      .then(data => {
+        const tableBody = document.querySelector("#tideTable tbody");
+        const entries = data.querySelectorAll("location > time
